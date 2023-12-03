@@ -17,7 +17,6 @@ pub fn day1() {
 }
 
 enum State {
-    Result(u16),
     Z,
     E,
     R,
@@ -53,10 +52,7 @@ enum State {
 
 impl Into<ControlFlow<u16, State>> for State {
     fn into(self) -> ControlFlow<u16, State> { 
-        match self {
-            State::Result(n) => ControlFlow::Break(n),
-            s => ControlFlow::Continue(s)
-        }
+        ControlFlow::Continue(self)
     }
 }
 
