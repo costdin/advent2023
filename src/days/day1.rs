@@ -16,143 +16,107 @@ pub fn day1() {
     println!("DAY 5\nSolution 1: {}\nSolution 2: {}", result1, result2);
 }
 
-enum State {
-    Z,
-    E,
-    R,
-    O,
-    N,
-    T,
-    W,
-    R3,
-    H,
-    E3,
-    F,
-    O4,
-    U,
-    I,
-    V,
-    S,
-    I6,
-    E7,
-    V7,
-    E77,
-    E8,
-    I8,
-    G,
-    H8,
-    N9,
-    I9,
-    N99,
-    N7,
-    X,
-    E33,
-    None,
-}
-
-impl Into<ControlFlow<u16, State>> for State {
-    fn into(self) -> ControlFlow<u16, State> { 
-        ControlFlow::Continue(self)
-    }
-}
-
-fn find_first_number(mut s: impl Iterator<Item = char>, only_num: bool, rev: bool) -> u16 {
-    match s.try_fold(State::None, |acc, c| fold(acc, c, only_num, rev)) {
+fn find_first_number(mut s: impl Iterator<Item = char>, only_num: bool, rev: bool) -> u32 {
+    match s.try_fold(37, |acc, c| fold(acc, c, only_num, rev)) {
         ControlFlow::Break(n) => n,
         _ => unreachable!("noooo"),
     }
 }
 
-fn fold(state: State, digit: char, only_num: bool, rev: bool) -> ControlFlow<u16, State> {
-    if digit.is_numeric() {
-        ControlFlow::Break((digit as u8 - b'0') as u16)
+fn fold(state: u32, digit: char, only_num: bool, rev: bool) -> ControlFlow<u32, u32> {
+    match if digit.is_numeric() {
+        (digit as u8 - b'0') as u32
     } else if only_num {
-        ControlFlow::Continue(State::None)
+        37
     } else if rev {
-        match (state, digit) {
-            (State::E, 'z') => ControlFlow::Break(0),
-            (State::N, 'o') => ControlFlow::Break(1),
-            (State::W, 't') => ControlFlow::Break(2),
-            (State::H, 't') => ControlFlow::Break(3),
-            (State::O4, 'f') => ControlFlow::Break(4),
-            (State::I, 'f') => ControlFlow::Break(5),
-            (State::I6, 's') => ControlFlow::Break(6),
-            (State::E77, 's') => ControlFlow::Break(7),
-            (State::I8, 'e') => ControlFlow::Break(8),
-            (State::I9, 'n') => ControlFlow::Break(9),
+        match (state - 10, digit) {
+            (0, 'z') => 0,
+            (1, 'o') => 1,
+            (2, 't') => 2,
+            (3, 't') => 3,
+            (4, 'f') => 4,
+            (5, 'f') => 5,
+            (6, 's') => 6,
+            (7, 's') => 7,
+            (8, 'e') => 8,
+            (9, 'n') => 9,
 
-            (State::U, 'o') => State::O4.into(),
-            (State::E7, 'v') => State::V7.into(),
-            (State::O | State::O4, 'r') => State::R.into(),
-            (State::R, 'e') => State::E.into(),
-            (State::E | State::E3 | State::E7 | State::E77, 'e') => State::E33.into(),
-            (State::E | State::E3 | State::E33 | State::E7 | State::E77, 'n') => State::N.into(),
-            (State::N7 | State::N, 'e') => State::E7.into(),
-            (State::V7, 'e') => State::E77.into(),
-            (State::O | State::O4, 'w') => State::W.into(),
-            (State::E33, 'r') => State::R.into(),
-            (State::R, 'h') => State::H.into(),
-            (State::R, 'u') => State::U.into(),
-            (State::E | State::E3 | State::E33 | State::E77, 'v') => State::V.into(),
-            (State::V | State::V7, 'i') => State::I.into(),
-            (State::X, 'i') => State::I6.into(),
-            (State::T, 'h') => State::H8.into(),
-            (State::H8, 'g') => State::G.into(),
-            (State::G, 'i') => State::I8.into(),
-            (State::N, 'i') => State::I9.into(),
+            (0 | 7 | 12 | 19, 'v') => 25,
+            (0 | 7 | 13 | 19, 'e') => 22,
+            (0 | 7 | 12 | 13 | 19, 'n') => 11,
+            (1, 'i') => 19,
+            (1 | 21, 'e') => 23,
+            (4 | 18, 'r') => 21,
+            (4 | 18, 'w') => 12,
 
-            (_, 'o') => State::O.into(),
-            (_, 'e') => State::E3.into(),
-            (_, 'r') => State::R.into(),
-            (_, 'x') => State::X.into(),
-            (_, 'n') => State::N7.into(),
-            (_, 't') => State::T.into(),
+            (10, 'e') => 17,
+            (10 | 15, 'i') => 15,
+            (11, 'h') => 13,
+            (11, 'u') => 24,
+            (11, 'e') => 10,
+            (12, 'r') => 21,
+            (13, 'v') => 20,
+            (14, 'o') => 14,
+            (16, 'g') => 27,
+            (17, 'i') => 18,
+            (20, 'i') => 16,
+            (22, 'h') => 26,
 
-            _ => State::None.into(),
+            (_, 'o') => 28,
+            (_, 'e') => 29,
+            (_, 'r') => 21,
+            (_, 'x') => 30,
+            (_, 'n') => 31,
+            (_, 't') => 32,
+
+            _ => 37,
         }
     } else {
-        match (state, digit) {
-            (State::R, 'o') => ControlFlow::Break(0),
-            (State::N, 'e') => ControlFlow::Break(1),
-            (State::W, 'o') => ControlFlow::Break(2),
-            (State::E3, 'e') => ControlFlow::Break(3),
-            (State::U, 'r') => ControlFlow::Break(4),
-            (State::V, 'e') => ControlFlow::Break(5),
-            (State::I6, 'x') => ControlFlow::Break(6),
-            (State::E77, 'n') => ControlFlow::Break(7),
-            (State::H8, 't') => ControlFlow::Break(8),
-            (State::N99, 'e') => ControlFlow::Break(9),
+        match (state - 10, digit) {
+            (0, 'o') => 0,
+            (1, 'e') => 1,
+            (2, 'o') => 2,
+            (3, 'e') => 3,
+            (4, 'r') => 4,
+            (5, 'e') => 5,
+            (6, 'x') => 6,
+            (7, 'n') => 7,
+            (8, 't') => 8,
+            (9, 'e') => 9,
 
-            (State::Z, 'e') =>  State::E.into(),
-            (State::E, 'r') => State::R.into(),
-            (State::F, 'o') => State::O4.into(),
-            (State::I9, 'n') => State::N99.into(),
-            (State::O | State::O4, 'n') => State::N.into(),
-            (State::T, 'w') => State::W.into(),
-            (State::T, 'h') => State::H.into(),
-            (State::H, 'r') => State::R3.into(),
-            (State::R3, 'e') => State::E3.into(),
-            (State::O4, 'u') => State::U.into(),
-            (State::F, 'i') => State::I.into(),
-            (State::I, 'v') => State::V.into(),
-            (State::S, 'i') => State::I6.into(),
-            (State::S, 'e') => State::E7.into(),
-            (State::E7, 'v') => State::V7.into(),
-            (State::V7, 'e') => State::E77.into(),
-            (State::E | State::E3 | State::E7 | State::E77 | State::E8, 'i') => State::I8.into(),
-            (State::I8, 'g') => State::G.into(),
-            (State::G, 'h') => State::H8.into(),
-            (State::N | State::N9 | State::N99, 'i') => State::I9.into(),
+            (1 | 26 | 9, 'i') => 29,
+            (10 | 3 | 15 | 7 | 25, 'i') => 27,
+            (10, 'r') => 10,
+            (11 | 21, 'n') => 11,
+            (11, 'u') => 14,
+            (12, 'r') => 23,
+            (13, 'e') => 13,
+            (14, 'v') => 15,
+            (15, 'v') => 26,
+            (16, 'e') => 17,
+            (17, 'g') => 28,
+            (18, 'h') => 18,
+            (19, 'n') => 19,
+            (20, 'e') => 20,
+            (22, 'w') => 12,
+            (22, 'h') => 22,
+            (23, 'o') => 21,
+            (23, 'i') => 24,
+            (24, 'i') => 16,
+            (24, 'e') => 25,
 
-            (_, 'z') => State::Z.into(),
-            (_, 'o') => State::O.into(),
-            (_, 't') => State::T.into(),
-            (_, 'f') => State::F.into(),
-            (_, 's') => State::S.into(),
-            (_, 'e') => State::E8.into(),
-            (_, 'n') => State::N9.into(),
+            (_, 'z') => 30,
+            (_, 'o') => 31,
+            (_, 't') => 32,
+            (_, 'f') => 33,
+            (_, 's') => 34,
+            (_, 'e') => 35,
+            (_, 'n') => 36,
 
-            _ => State::None.into(),
+            _ => 37,
         }
+    } {
+        n @ 0..=9 => ControlFlow::Break(n),
+        n => ControlFlow::Continue(n),
     }
 }
