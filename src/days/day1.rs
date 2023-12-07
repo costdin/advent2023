@@ -11,8 +11,8 @@ pub fn day1() {
                     + find_first_number(l.chars().rev(), false, 1),
             )
         })
-        .fold((0u16, 0u16), |(s1, s2), (n1, n2)| {
-            (s1 + n1 as u16, s2 + n2 as u16)
+        .fold((0u32, 0u32), |(s1, s2), (n1, n2)| {
+            (s1 + n1 as u32, s2 + n2 as u32)
         });
 
     println!("DAY 1\nSolution 1: {}\nSolution 2: {}", result1, result2);
