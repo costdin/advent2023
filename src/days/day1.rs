@@ -13,7 +13,7 @@ pub fn day1() {
         })
         .fold((0, 0), |(s1, s2), (n1, n2)| (s1 + n1, s2 + n2));
 
-    println!("DAY 5\nSolution 1: {}\nSolution 2: {}", result1, result2);
+    println!("DAY 1\nSolution 1: {}\nSolution 2: {}", result1, result2);
 }
 
 fn find_first_number(mut s: impl Iterator<Item = char>, only_num: bool, rev: bool) -> u32 {
