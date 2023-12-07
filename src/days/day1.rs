@@ -1,103 +1,38 @@
-use std::ops::ControlFlow;
+const THE_STRING_OF_POWER: &str = "HHHHHHHHF9DHHHHHHHHHHHHHHHG.#?HHHHH8EHCCHHH<HHHAHHA#HHHHHHHH$:DHHHHH@6HHHHHHHHGBB$HHHHH8EHCCHHHHHHHAHHAHHHHHHHHHF@DHHHHHHHHHHHHHHHGB%?HHHHH8EHC%HHHHHHHAHHAHHHHHHHHH&@DHHHHH>HHHHHHHHHGBB?HHHHH8EHC&HHHHHHHAHHAHHHHHHHHHF@D'HHHHHHHHHHHHHHGBB?HHHH'8EHCCHHHHH/HAHHAHHHHHHHHH(@D(HHHHHHHHHHHHHHGBB?HHHHH8EHCCHHHHHHHAHHAHHHHHHHHHF@DHHHHHHHHHHHHHHHGBB?HHHHH8E)CCHHHHHH)AHHAHHHHHHHHHF9DHHHHH>HHHHHHHHH*.B?HHHHH8E*CCHHH<HHHAHHAHHHHHHHHHF+DHHHHHHHHHHHHHHHGBB?HHHHH8EH+CHHHHHHHAHHAHHHHHHHHH,@DHHHHH@HHHHHHHHHG,B?HHHHH8EHCCHHHHHHHAHHAHHHHHHHHHF4DHHHHH>2HHHHHHHHGBB?HHHH-8EHCCHHHHHHHAHHAHHHHHHHHHF-DHHHH0HHHHHHHHHH.BB?HHHHH8EHCC1;HHHHHAHHAHHHHHHHHHF@DHHHHHHHHHHHHHHHG.B?HHHH:8EHCCHHH<HHHAHHAHHHHHHHHH09DHHHHHHHHHHHHHHHG.B?HHHHH8EHCCHHH7HHHAHHAHHHHHHHHHF@DHHHHHHHHHHHHHHHGBB1HHHHH8EHCCHH2HHHHAHHAHHHHHHHHHF@DHHHHH>2HHHHHHHHGBB?HHHHH8EHCCHH=HHHHAHHAHHHHHHHHH4@DHH>HHHHHHHHHHHHGBB?HHHHH8EHCCHHHHHHHAHHAHHHHHHHHHF@DH?HHHH5HHHHHHHHGBB?HHHHH8EHCCHHHHHHHAHHAHHHHHHHHHF@DHHH5HHHHHHHHHHHGBB?HHHHH8EHCCHHHHH/HAHHAHHHHHHHHHF9DHHHHHHHHHHHHHHH6.B?HHHHH8EHCCHHH<HHHAHHAHHHHHHHHH7@DHHHHHH3HHHHHHHHGBB?HHHHH8EHCCHHHHHHHAHHAHHHHHHHHHF:DHHHHHHHHHHHHHHH.BB?HHHHH8EHCCHHHHHHHAHHAHHHHHHHHHF@DHHH9=HHHHHHHHHHGBB?HHHHH8EHCCHHHH/HHAHHAHHHHHHHHHF@DHHHHH;HHHHHHHHHGB8?HHHHH8EHCCHHHHHHHAHHAHHHHHHHHH<@DHHHHH3HHHHHHHHHGBB?HHHHH8EHCCHHHHHHHAHHAHHHHHHHHHF@DHHHHH>HHHHHHHHHGBB?HHHHH8EHCCHHHHHHHAHHAHHHHHHHHHF@DHHHHH@HHHHHHHHHGBB?HHHHH8EHCCHHHHHHHAHHAHHHHHHHHHF@DHHHHHHHHHHHHHHHGBB?HHHHH8EHCCHHHHHHHAHHAH";
 
 pub fn day1() {
     let (result1, result2) = include_str!("../../day1.txt")
         .lines()
         .map(|l| {
             (
-                find_first_number(l.chars(), true, false) * 10
-                    + find_first_number(l.chars().rev(), true, true),
-                find_first_number(l.chars(), false, false) * 10
-                    + find_first_number(l.chars().rev(), false, true),
+                find_first_number(l.chars(), true, 0) * 10
+                    + find_first_number(l.chars().rev(), true, 1),
+                find_first_number(l.chars(), false, 0) * 10
+                    + find_first_number(l.chars().rev(), false, 1),
             )
         })
-        .fold((0, 0), |(s1, s2), (n1, n2)| (s1 + n1, s2 + n2));
+        .fold((0u16, 0u16), |(s1, s2), (n1, n2)| {
+            (s1 + n1 as u16, s2 + n2 as u16)
+        });
 
     println!("DAY 1\nSolution 1: {}\nSolution 2: {}", result1, result2);
 }
 
-fn find_first_number(mut s: impl Iterator<Item = char>, only_num: bool, rev: bool) -> u32 {
-    match s.try_fold(37, |acc, c| fold(acc, c, only_num, rev)) {
-        ControlFlow::Break(n) => n,
-        _ => unreachable!("Let's not spend too much time handling errors"),
-    }
+fn find_first_number(s: impl Iterator<Item = char>, only_num: bool, one: usize) -> u8 {
+    s.map(|c| c as u8)
+        .try_fold(37, |acc, c| {
+            match match (c, only_num) {
+                (n @ 48..=57, _) => (n + 2) % 10,
+                (_, true) => 37,
+                (n, _) => {
+                    THE_STRING_OF_POWER.as_bytes()
+                        [one + 52 * (acc - 10) as usize + 2 * (n - 97) as usize]
+                        - 35
+                }
+            } {
+                n @ 0..=9 => Err(n),
+                n => Ok(n),
+            }
+        })
+        .unwrap_err()
 }
-
-fn fold(state: u32, digit: char, only_num: bool, rev: bool) -> ControlFlow<u32, u32> {
-    match if digit.is_numeric() {
-        (digit as u8 - b'0') as u32
-    } else if only_num {
-        37
-    } else {
-        MAP[if rev { 728 } else { 0 }
-            + ((state - 10) * 26) as usize
-            + (digit as u8 - b'a') as usize]
-    } {
-        n @ 0..=9 => ControlFlow::Break(n),
-        n => ControlFlow::Continue(n),
-    }
-}
-
-const MAP: [u32; 1456] = [
-    37, 37, 37, 37, 35, 33, 37, 37, 37, 37, 37, 37, 37, 36, 0, 37, 37, 37, 34, 32, 37, 37, 37, 37,
-    37, 30, 37, 37, 37, 37, 1, 33, 37, 37, 29, 37, 37, 37, 37, 36, 31, 37, 37, 37, 34, 32, 37, 37,
-    37, 37, 37, 30, 37, 37, 37, 37, 35, 33, 37, 37, 37, 37, 37, 37, 37, 36, 2, 37, 37, 37, 34, 32,
-    37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 3, 33, 37, 37, 27, 37, 37, 37, 37, 36, 31, 37, 37, 37,
-    34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 35, 33, 37, 37, 37, 37, 37, 37, 37, 36, 31, 37,
-    37, 4, 34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 5, 33, 37, 37, 37, 37, 37, 37, 37, 36,
-    31, 37, 37, 37, 34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 35, 33, 37, 37, 37, 37, 37, 37,
-    37, 36, 31, 37, 37, 37, 34, 32, 37, 37, 37, 6, 37, 30, 37, 37, 37, 37, 35, 33, 37, 37, 27, 37,
-    37, 37, 37, 7, 31, 37, 37, 37, 34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 35, 33, 37, 37,
-    37, 37, 37, 37, 37, 36, 31, 37, 37, 37, 34, 8, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 9, 33,
-    37, 37, 29, 37, 37, 37, 37, 36, 31, 37, 37, 37, 34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37,
-    35, 33, 37, 37, 27, 37, 37, 37, 37, 36, 31, 37, 37, 10, 34, 32, 37, 37, 37, 37, 37, 30, 37, 37,
-    37, 37, 35, 33, 37, 37, 37, 37, 37, 37, 37, 11, 31, 37, 37, 37, 34, 32, 14, 37, 37, 37, 37, 30,
-    37, 37, 37, 37, 35, 33, 37, 37, 37, 37, 37, 37, 37, 36, 31, 37, 37, 23, 34, 32, 37, 37, 37, 37,
-    37, 30, 37, 37, 37, 37, 13, 33, 37, 37, 37, 37, 37, 37, 37, 36, 31, 37, 37, 37, 34, 32, 37, 37,
-    37, 37, 37, 30, 37, 37, 37, 37, 35, 33, 37, 37, 37, 37, 37, 37, 37, 36, 31, 37, 37, 37, 34, 32,
-    37, 15, 37, 37, 37, 30, 37, 37, 37, 37, 35, 33, 37, 37, 27, 37, 37, 37, 37, 36, 31, 37, 37, 37,
-    34, 32, 37, 26, 37, 37, 37, 30, 37, 37, 37, 37, 17, 33, 37, 37, 37, 37, 37, 37, 37, 36, 31, 37,
-    37, 37, 34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 35, 33, 28, 37, 37, 37, 37, 37, 37, 36,
-    31, 37, 37, 37, 34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 35, 33, 37, 18, 37, 37, 37, 37,
-    37, 36, 31, 37, 37, 37, 34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 35, 33, 37, 37, 37, 37,
-    37, 37, 37, 19, 31, 37, 37, 37, 34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 20, 33, 37, 37,
-    37, 37, 37, 37, 37, 36, 31, 37, 37, 37, 34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 35, 33,
-    37, 37, 37, 37, 37, 37, 37, 11, 31, 37, 37, 37, 34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37,
-    35, 33, 37, 22, 37, 37, 37, 37, 37, 36, 31, 37, 37, 37, 34, 32, 37, 37, 12, 37, 37, 30, 37, 37,
-    37, 37, 35, 33, 37, 37, 24, 37, 37, 37, 37, 36, 21, 37, 37, 37, 34, 32, 37, 37, 37, 37, 37, 30,
-    37, 37, 37, 37, 25, 33, 37, 37, 16, 37, 37, 37, 37, 36, 31, 37, 37, 37, 34, 32, 37, 37, 37, 37,
-    37, 30, 37, 37, 37, 37, 35, 33, 37, 37, 27, 37, 37, 37, 37, 36, 31, 37, 37, 37, 34, 32, 37, 37,
-    37, 37, 37, 30, 37, 37, 37, 37, 35, 33, 37, 37, 29, 37, 37, 37, 37, 36, 31, 37, 37, 37, 34, 32,
-    37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 35, 33, 37, 37, 37, 37, 37, 37, 37, 36, 31, 37, 37, 37,
-    34, 32, 37, 37, 37, 37, 37, 30, 37, 37, 37, 37, 22, 37, 37, 37, 37, 37, 37, 37, 37, 11, 28, 37,
-    37, 21, 37, 32, 37, 25, 37, 30, 37, 0, 37, 37, 37, 37, 23, 37, 37, 37, 19, 37, 37, 37, 37, 31,
-    1, 37, 37, 21, 37, 32, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 37, 37, 37, 37, 37, 37,
-    37, 31, 28, 37, 37, 21, 37, 2, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 37, 37, 37, 37,
-    37, 37, 37, 31, 28, 37, 37, 21, 37, 3, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 4, 37, 37,
-    37, 37, 37, 37, 37, 31, 28, 37, 37, 21, 37, 32, 37, 37, 12, 30, 37, 37, 37, 37, 37, 37, 29, 5,
-    37, 37, 37, 37, 37, 37, 37, 31, 28, 37, 37, 21, 37, 32, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37,
-    29, 37, 37, 37, 37, 37, 37, 37, 37, 31, 28, 37, 37, 21, 6, 32, 37, 37, 37, 30, 37, 37, 37, 37,
-    37, 37, 22, 37, 37, 37, 37, 37, 37, 37, 37, 11, 28, 37, 37, 21, 7, 32, 37, 25, 37, 30, 37, 37,
-    37, 37, 37, 37, 8, 37, 37, 37, 37, 37, 37, 37, 37, 31, 28, 37, 37, 21, 37, 32, 37, 37, 37, 30,
-    37, 37, 37, 37, 37, 37, 29, 37, 37, 37, 37, 37, 37, 37, 37, 9, 28, 37, 37, 21, 37, 32, 37, 37,
-    37, 30, 37, 37, 37, 37, 37, 37, 17, 37, 37, 37, 15, 37, 37, 37, 37, 31, 28, 37, 37, 21, 37, 32,
-    37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 10, 37, 37, 13, 37, 37, 37, 37, 37, 31, 28, 37, 37, 21,
-    37, 32, 24, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 37, 37, 37, 37, 37, 37, 37, 11, 28, 37,
-    37, 21, 37, 32, 37, 25, 37, 30, 37, 37, 37, 37, 37, 37, 22, 37, 37, 37, 37, 37, 37, 37, 37, 11,
-    28, 37, 37, 21, 37, 32, 37, 20, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 37, 37, 37, 37, 37, 37,
-    37, 31, 14, 37, 37, 21, 37, 32, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 37, 37, 15, 37,
-    37, 37, 37, 31, 28, 37, 37, 21, 37, 32, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 27, 37,
-    37, 37, 37, 37, 37, 31, 28, 37, 37, 21, 37, 32, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37,
-    37, 37, 18, 37, 37, 37, 37, 31, 28, 37, 37, 21, 37, 32, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37,
-    29, 37, 37, 37, 37, 37, 37, 37, 37, 31, 28, 37, 37, 21, 37, 32, 37, 37, 12, 30, 37, 37, 37, 37,
-    37, 37, 22, 37, 37, 37, 37, 37, 37, 37, 37, 11, 28, 37, 37, 21, 37, 32, 37, 25, 37, 30, 37, 37,
-    37, 37, 37, 37, 29, 37, 37, 37, 16, 37, 37, 37, 37, 31, 28, 37, 37, 21, 37, 32, 37, 37, 37, 30,
-    37, 37, 37, 37, 37, 37, 23, 37, 37, 37, 37, 37, 37, 37, 37, 31, 28, 37, 37, 21, 37, 32, 37, 37,
-    37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 37, 26, 37, 37, 37, 37, 37, 31, 28, 37, 37, 21, 37, 32,
-    37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 37, 37, 37, 37, 37, 37, 37, 31, 28, 37, 37, 21,
-    37, 32, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 37, 37, 37, 37, 37, 37, 37, 31, 28, 37,
-    37, 21, 37, 32, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 37, 37, 37, 37, 37, 37, 37, 31,
-    28, 37, 37, 21, 37, 32, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 37, 37, 37, 37, 37, 37,
-    37, 31, 28, 37, 37, 21, 37, 32, 37, 37, 37, 30, 37, 37, 37, 37, 37, 37, 29, 37, 37, 37, 37, 37,
-    37, 37, 37, 31, 28, 37, 37, 21, 37, 32, 37, 37, 37, 30, 37, 37,
-];
