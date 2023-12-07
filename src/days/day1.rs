@@ -26,7 +26,7 @@ fn find_first_number(s: impl Iterator<Item = char>, only_num: bool, one: usize) 
                 (_, true) => 37,
                 (n, _) => {
                     THE_STRING_OF_POWER.as_bytes()
-                        [one + 52 * (acc - 10) as usize + 2 * (n - 97) as usize]
+                        [52 * acc as usize + 2 * n as usize - 714 + one]
                         - 35
                 }
             } {
