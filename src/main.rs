@@ -5,6 +5,6 @@ use std::time::Instant;
 
 fn main() {
     let s1 = Instant::now();
-    day3();
+    day4();
     println!("The time is probably {}µs", s1.elapsed().as_micros());
 }
