@@ -4,7 +4,7 @@ use std::collections::HashMap;
 pub fn day3() {
     let (result1, result2) = solve(include_bytes!("../../day3.txt"));
 
-    println!("DAY 1\nSolution 1: {}\nSolution 2: {}", result1, result2);
+    println!("DAY 3\nSolution 1: {}\nSolution 2: {}", result1, result2);
 }
 
 fn solve(map: &[u8]) -> (u32, u32) {

@@ -48,7 +48,7 @@ pub fn day5() {
         ),
     };
 
-    println!("DAY 1\nSolution 1: {}\nSolution 2: {}", result1, result2);
+    println!("DAY 5\nSolution 1: {}\nSolution 2: {}", result1, result2);
 }
 
 fn mama_take_this_job_from_me_i_dont_deserve_it_anymore(

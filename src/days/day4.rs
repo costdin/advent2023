@@ -51,5 +51,5 @@ pub fn day4() {
                 },
             )
         });
-    println!("DAY 1\nSolution 1: {}\nSolution 2: {}", result1, result2);
+    println!("DAY 4\nSolution 1: {}\nSolution 2: {}", result1, result2);
 }
