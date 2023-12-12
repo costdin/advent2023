@@ -8,10 +8,8 @@ const THE_THING: [u8; 70] = [
     58, 41, 53, 10, 15, 78, 0, 12, 45, 1, 11, 15, 8, 11, 4, 4, 9,
 ];
 
-// Low 251751455
-// Low 251748635
 pub fn day7() {
-    let (a, b) = match include_str!("../../day7.txt")
+    let (result1, result2) = match include_str!("../../day7.txt")
         .lines()
         .filter_map(|l| l.split_once(' '))
         .map(|(h, b)| (h, parse_integer::<u64>(b)))
@@ -76,5 +74,8 @@ pub fn day7() {
         ),
     };
 
-    println!("DAY 7\nSolution 1: {:#?}\nSolution 2: {:#?}", a, b);
+    println!(
+        "DAY 7\nSolution 1: {:#?}\nSolution 2: {:#?}",
+        result1, result2
+    );
 }
