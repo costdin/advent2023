@@ -34,13 +34,7 @@ pub fn day8() {
                         })
                         .unwrap_err()
                 })
-                .fold(0, |acc, n| {
-                    if acc == 0 {
-                        n as u64
-                    } else {
-                        lcm(acc, n as u64)
-                    }
-                }),
+                .fold(1, |acc, n| lcm(acc, n as u64)),
         ),
     };
 
